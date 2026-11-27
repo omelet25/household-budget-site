@@ -1,6 +1,6 @@
 // HomeLedger entry point: build the navigation from the router's routes,
-// then hand over to the router. Everything else is imported from here,
-// so the first load is exactly this module's static import tree.
+// then hand over to the router. Only the shared modules are imported
+// statically; the router loads each view module when its route opens.
 
 import { ROUTES, startRouter } from "./router.js";
 
