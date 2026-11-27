@@ -3,7 +3,7 @@
 // library only, no network, no clock, no randomness: the same repository
 // always writes the same bytes.
 
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDossier } from "./vendor/makefun-frontend.ts";
@@ -11,7 +11,13 @@ import { buildDossier } from "./vendor/makefun-frontend.ts";
 const repoRoot = dirname(fileURLToPath(import.meta.url));
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 
-rmSync(outDir, { recursive: true, force: true });
+// Clear the output directory's contents, never the directory itself: in the
+// grader /output is a writable mount on a read-only root filesystem, so
+// removing the directory (rmSync on outDir) is refused with EACCES.
+mkdirSync(outDir, { recursive: true });
+for (const name of readdirSync(outDir)) {
+  rmSync(join(outDir, name), { recursive: true, force: true });
+}
 mkdirSync(join(outDir, "app"), { recursive: true });
 mkdirSync(join(outDir, "screenshots"), { recursive: true });
 cpSync(join(repoRoot, "app"), join(outDir, "app"), { recursive: true });
